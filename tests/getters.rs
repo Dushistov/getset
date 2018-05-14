@@ -111,7 +111,7 @@ mod submodule {
 #[test]
 fn test_plain() {
     let val = Plain::default();
-    assert_eq!(18, *val.public_accessible());
+    assert_eq!(18, val.public_accessible());
 }
 
 #[test]
