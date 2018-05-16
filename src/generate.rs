@@ -100,9 +100,8 @@ pub fn implement(field: &Field, mode: GenMode, params: GenParams) -> Tokens {
                         quote! {
                             #(#doc)*
                             #[inline(always)]
-                            fn #fn_name(&mut self, val: #ty) -> &mut Self {
+                            fn #fn_name(&mut self, val: #ty) {
                                 self.#field_name = val;
-                                self
                             }
                         }
                     }
@@ -145,9 +144,8 @@ pub fn implement(field: &Field, mode: GenMode, params: GenParams) -> Tokens {
                             quote! {
                                 #(#doc)*
                                 #[inline(always)]
-                                #visibility fn #fn_name(&mut self, val: #ty) -> &mut Self {
+                                #visibility fn #fn_name(&mut self, val: #ty) {
                                     self.#field_name = val;
-                                    self
                                 }
                             }
                         }
