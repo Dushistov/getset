@@ -1,7 +1,8 @@
 use proc_macro2::{Span, Term};
 use quote::Tokens;
 use std::collections::HashSet;
-use syn::{Attribute, Field, Ident, Lit, Meta, MetaNameValue, PathSegment, Type, TypePath};
+use syn::{AngleBracketedGenericArguments, Attribute, Field, GenericArgument, Ident, Lit, Meta,
+          MetaNameValue, PathArguments, PathSegment, Type, TypePath};
 
 pub struct GenParams {
     pub attribute_name: &'static str,
@@ -44,6 +45,28 @@ fn is_type_primitive(ty: &Type) -> bool {
             let seg: &PathSegment = path.segments.first().unwrap().value();
             if PRIMITIVE_TYPENAMES.contains(seg.ident.as_ref()) {
                 true
+            } else if seg.ident == "Option" {
+                if let PathArguments::AngleBracketed(AngleBracketedGenericArguments {
+                    ref args,
+                    ..
+                }) = seg.arguments
+                {
+                    if args.len() == 1 {
+                        if let Some(ref val) = args.first() {
+                            if let GenericArgument::Type(ref ty) = val.value() {
+                                is_type_primitive(ty)
+                            } else {
+                                false
+                            }
+                        } else {
+                            false
+                        }
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
             } else {
                 false
             }

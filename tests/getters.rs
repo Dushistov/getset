@@ -14,6 +14,9 @@ mod submodule {
             #[get]
             private_accessible: usize,
 
+            #[get = "pub"]
+            opt_primitive: Option<u32>,
+
             /// A doc comment.
             #[get = "pub"]
             public_accessible: usize,
@@ -35,6 +38,7 @@ mod submodule {
                 Plain {
                     private_accessible: 17,
                     public_accessible: 18,
+                    opt_primitive: Some(42),
                 }
             }
         }
@@ -112,6 +116,8 @@ mod submodule {
 fn test_plain() {
     let val = Plain::default();
     assert_eq!(18, val.public_accessible());
+
+    assert_eq!(Some(42), val.opt_primitive());
 }
 
 #[test]
