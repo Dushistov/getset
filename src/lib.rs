@@ -34,22 +34,16 @@ fn main() {
 */
 
 extern crate proc_macro;
-extern crate syn;
-#[macro_use]
-extern crate quote;
-extern crate proc_macro2;
-#[macro_use]
-extern crate lazy_static;
 
-use proc_macro::TokenStream;
-use quote::Tokens;
+use proc_macro2::TokenStream;
+use quote::quote;
 use syn::{DataStruct, DeriveInput, Field};
 
 mod generate;
-use generate::{GenMode, GenParams};
+use crate::generate::{GenMode, GenParams};
 
 #[proc_macro_derive(Getters, attributes(get))]
-pub fn getters(input: TokenStream) -> TokenStream {
+pub fn getters(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     // Parse the string representation
     let ast = syn::parse(input).expect("Couldn't parse for getters");
 
@@ -71,7 +65,7 @@ pub fn getters(input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_derive(MutGetters, attributes(get_mut))]
-pub fn mut_getters(input: TokenStream) -> TokenStream {
+pub fn mut_getters(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     // Parse the string representation
     let ast = syn::parse(input).expect("Couldn't parse for getters");
     // Build the impl
@@ -91,7 +85,7 @@ pub fn mut_getters(input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_derive(Setters, attributes(set))]
-pub fn setters(input: TokenStream) -> TokenStream {
+pub fn setters(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     // Parse the string representation
     let ast = syn::parse(input).expect("Couldn't parse for setters");
 
@@ -112,7 +106,7 @@ pub fn setters(input: TokenStream) -> TokenStream {
     gen.into()
 }
 
-fn produce(ast: &DeriveInput, worker: fn(&Field) -> Tokens) -> Tokens {
+fn produce(ast: &DeriveInput, worker: fn(&Field) -> TokenStream) -> TokenStream {
     let name = &ast.ident;
     let generics = &ast.generics;
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();

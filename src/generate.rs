@@ -1,8 +1,11 @@
-use proc_macro2::{Span, Term};
-use quote::Tokens;
+use lazy_static::lazy_static;
+use proc_macro2::{Span, TokenStream};
+use quote::quote;
 use std::collections::HashSet;
-use syn::{AngleBracketedGenericArguments, Attribute, Field, GenericArgument, Ident, Lit, Meta,
-          MetaNameValue, PathArguments, PathSegment, Type, TypePath};
+use syn::{
+    AngleBracketedGenericArguments, Attribute, Field, GenericArgument, Ident, Lit, Meta,
+    MetaNameValue, PathArguments, PathSegment, Type, TypePath,
+};
 
 pub struct GenParams {
     pub attribute_name: &'static str,
@@ -43,7 +46,7 @@ fn is_type_primitive(ty: &Type) -> bool {
     {
         if path.segments.len() == 1 {
             let seg: &PathSegment = path.segments.first().unwrap().value();
-            if PRIMITIVE_TYPENAMES.contains(seg.ident.as_ref()) {
+            if PRIMITIVE_TYPENAMES.contains(seg.ident.to_string().as_str()) {
                 true
             } else if seg.ident == "Option" {
                 if let PathArguments::AngleBracketed(AngleBracketedGenericArguments {
@@ -78,13 +81,13 @@ fn is_type_primitive(ty: &Type) -> bool {
     }
 }
 
-pub fn implement(field: &Field, mode: GenMode, params: GenParams) -> Tokens {
+pub fn implement(field: &Field, mode: GenMode, params: GenParams) -> TokenStream {
     let field_name = field
         .clone()
         .ident
         .expect("Expected the field to have a name");
     let type_primitive = is_type_primitive(&field.ty);
-    let fn_name = Term::new(
+    let fn_name = Ident::new(
         &format!(
             "{}{}{}",
             params.fn_name_prefix, field_name, params.fn_name_suffix
@@ -142,7 +145,7 @@ pub fn implement(field: &Field, mode: GenMode, params: GenParams) -> Tokens {
                     lit: Lit::Str(ref s),
                     ..
                 })) => {
-                    let visibility = Term::new(&s.value(), s.span());
+                    let visibility = Ident::new(&s.value(), s.span());
                     match mode {
                         GenMode::Get => {
                             if type_primitive {
@@ -202,6 +205,6 @@ pub fn implement(field: &Field, mode: GenMode, params: GenParams) -> Tokens {
             }
         }
         // Don't need to do anything.
-        None => quote!{},
+        None => quote! {},
     }
 }
